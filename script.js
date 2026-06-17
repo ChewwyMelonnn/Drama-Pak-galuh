@@ -1,8 +1,4 @@
-// ============================================
 // SOUNDBOARD CONFIGURATION
-// ============================================
-// Tambahkan sound yang ingin Anda gunakan di sini
-// Format: { name: 'Nama Sound', file: 'path-ke-file-di-folder-sounds' }
 const SOUNDS = [
     { name: 'kiichan', file: 'sounds/Kiichan Babalik Sa yo cover.mp3' },
     { name: 'tiny little adiantum', file: 'sounds/Tiny Little Adiantum.mp3' },
@@ -14,293 +10,140 @@ const SOUNDS = [
     { name: 'Sound 8', file: 'sounds/sound8.mp3' },
 ];
 
-let audioPlayer = null;
-let soundboard = null;
-let trackNameDisplay = null;
-let timeSlider = null;
-let timeDisplay = null;
-let stopButton = null;
+// DOM Elements
+const audioPlayer = document.getElementById('audioPlayer');
+const soundboardContainer = document.querySelector('.soundboard');
+const trackNameElement = document.querySelector('.track-name');
+const timeSliderElement = document.getElementById('timeSlider');
+const timeDisplayElement = document.querySelector('.time');
+const stopButtonElement = document.getElementById('stopButton');
 
-let currentPlayingButton = null;
-let isSliderDragging = false;
+let currentButton = null;
+let isDragging = false;
 
-// ============================================
-// INITIALIZE APP
-// ============================================
-function initializeApp() {
-    console.log('=== SOUNDBOARD INITIALIZATION START ===');
-    console.log('Current URL:', window.location.href);
-    console.log('DOM Ready State:', document.readyState);
+// Create and render all sound buttons
+function renderButtons() {
+    soundboardContainer.innerHTML = '';
     
-    try {
-        audioPlayer = document.getElementById('audioPlayer');
-        soundboard = document.querySelector('.soundboard');
-        trackNameDisplay = document.querySelector('.track-name');
-        timeSlider = document.getElementById('timeSlider');
-        timeDisplay = document.querySelector('.time');
-        stopButton = document.getElementById('stopButton');
-        
-        console.log('Searching for elements...');
-        console.log('- audioPlayer:', audioPlayer ? '✓ Found' : '✗ NOT FOUND');
-        console.log('- soundboard:', soundboard ? '✓ Found' : '✗ NOT FOUND');
-        console.log('- trackNameDisplay:', trackNameDisplay ? '✓ Found' : '✗ NOT FOUND');
-        console.log('- timeSlider:', timeSlider ? '✓ Found' : '✗ NOT FOUND');
-        console.log('- timeDisplay:', timeDisplay ? '✓ Found' : '✗ NOT FOUND');
-        console.log('- stopButton:', stopButton ? '✓ Found' : '✗ NOT FOUND');
-        
-        // Check if all elements exist
-        if (!audioPlayer || !soundboard || !trackNameDisplay || !timeSlider || !timeDisplay || !stopButton) {
-            console.error('ERROR: One or more required HTML elements not found!');
-            console.error('Please make sure HTML file has all required elements.');
-            return false;
-        }
-        
-        console.log('✓ All HTML elements found successfully!');
-        
-        // Initialize soundboard buttons
-        console.log('Initializing soundboard with', SOUNDS.length, 'sounds...');
-        initializeSoundboard();
-        updateSliderBackground();
-        attachEventListeners();
-        
-        console.log('✓ Soundboard initialized successfully!');
-        console.log('=== SOUNDBOARD INITIALIZATION COMPLETE ===\n');
-        return true;
-    } catch (error) {
-        console.error('FATAL ERROR during initialization:', error);
-        console.error('Stack:', error.stack);
-        return false;
-    }
+    SOUNDS.forEach((sound) => {
+        const btn = document.createElement('button');
+        btn.className = 'sound-button';
+        btn.textContent = sound.name;
+        btn.onclick = () => handlePlayClick(sound, btn);
+        soundboardContainer.appendChild(btn);
+    });
 }
 
-// ============================================
-// INITIALIZE SOUNDBOARD
-// ============================================
-function initializeSoundboard() {
-    console.log('Creating', SOUNDS.length, 'sound buttons...');
-    
-    if (!soundboard) {
-        console.error('ERROR: soundboard element not available!');
+// Handle play button click
+function handlePlayClick(sound, button) {
+    // If same sound is playing, stop it
+    if (audioPlayer.src === sound.file && !audioPlayer.paused) {
+        stopAudio();
         return;
     }
     
-    // Clear existing buttons
-    soundboard.innerHTML = '';
+    // Stop previous sound
+    audioPlayer.pause();
     
-    SOUNDS.forEach((sound, index) => {
-        try {
-            const button = document.createElement('button');
-            button.className = 'sound-button';
-            button.textContent = sound.name;
-            button.dataset.index = index;
-            button.dataset.file = sound.file;
-            button.title = sound.name; // Tooltip
-            button.setAttribute('type', 'button');
-
-            button.addEventListener('click', () => playSound(sound, button));
-            soundboard.appendChild(button);
-            console.log('Button created:', index + 1, '-', sound.name);
-        } catch (error) {
-            console.error('Error creating button for sound:', sound.name, error);
-        }
+    // Remove playing class from previous button
+    if (currentButton) {
+        currentButton.classList.remove('playing');
+    }
+    
+    // Set new audio source and play
+    audioPlayer.src = sound.file;
+    audioPlayer.play().catch(err => {
+        alert('Cannot play: ' + sound.name + '\nFile: ' + sound.file);
     });
     
-    console.log('✓ Total buttons created:', soundboard.children.length);
+    // Update UI
+    currentButton = button;
+    button.classList.add('playing');
+    trackNameElement.textContent = sound.name;
+    stopButtonElement.disabled = false;
 }
 
-// ============================================
-// PLAY SOUND
-// ============================================
-function playSound(sound, button) {
-    console.log('\n>>> PLAY SOUND: ' + sound.name);
-    console.log('File path:', sound.file);
-    
-    try {
-        // Jika sound yang sama sedang diputar, hentikan
-        if (audioPlayer.src === sound.file && !audioPlayer.paused) {
-            console.log('Sound already playing - stopping...');
-            stopSound();
-            return;
-        }
-
-        // Hentikan sound yang sebelumnya
-        audioPlayer.pause();
-        if (currentPlayingButton) {
-            currentPlayingButton.classList.remove('playing');
-        }
-
-        // Set source dan mainkan
-        console.log('Setting audio source...');
-        audioPlayer.src = sound.file;
-        
-        const playPromise = audioPlayer.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log('✓ Audio playing successfully');
-            }).catch(error => {
-                console.error('✗ Error playing audio:', error.message);
-                console.error('Error name:', error.name);
-                console.error('File path:', sound.file);
-                console.log('Possible reasons:');
-                console.log('1. File does not exist at:', sound.file);
-                console.log('2. CORS issue (if file is from different domain)');
-                console.log('3. Browser autoplay policy issue');
-                console.log('4. Audio format not supported by browser');
-                alert('❌ Cannot play sound: ' + sound.name + '\n\nFile: ' + sound.file + '\n\nPlease check if the file exists in the sounds folder.');
-            });
-        }
-
-        // Update UI
-        currentPlayingButton = button;
-        button.classList.add('playing');
-        trackNameDisplay.textContent = sound.name;
-        stopButton.disabled = false;
-        console.log('✓ UI updated');
-    } catch (error) {
-        console.error('Error in playSound function:', error);
-    }
-}
-
-// ============================================
-// STOP SOUND
-// ============================================
-function stopSound() {
-    console.log('>>> STOP SOUND');
-    
+// Stop audio
+function stopAudio() {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
-    if (currentPlayingButton) {
-        currentPlayingButton.classList.remove('playing');
-    }
-    currentPlayingButton = null;
-    trackNameDisplay.textContent = 'No sound playing';
-    timeSlider.value = 0;
-    updateSliderBackground();
-    timeDisplay.textContent = '0:00 / 0:00';
-    stopButton.disabled = true;
-    console.log('✓ Sound stopped');
-}
-
-// ============================================
-// ATTACH EVENT LISTENERS
-// ============================================
-function attachEventListeners() {
-    console.log('Attaching event listeners...');
     
-    try {
-        // Update progress bar
-        audioPlayer.addEventListener('timeupdate', () => {
-            if (audioPlayer.duration && !isSliderDragging) {
-                const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-                timeSlider.value = percent;
-                updateSliderBackground();
-                updateTimeDisplay();
-            }
-        });
-
-        // Slider interaction
-        timeSlider.addEventListener('input', (e) => {
-            if (audioPlayer.duration) {
-                const percent = parseFloat(e.target.value);
-                audioPlayer.currentTime = (percent / 100) * audioPlayer.duration;
-                updateSliderBackground();
-                updateTimeDisplay();
-            }
-        });
-
-        timeSlider.addEventListener('mousedown', () => {
-            isSliderDragging = true;
-        });
-
-        timeSlider.addEventListener('mouseup', () => {
-            isSliderDragging = false;
-        });
-
-        timeSlider.addEventListener('touchstart', () => {
-            isSliderDragging = true;
-        });
-
-        timeSlider.addEventListener('touchend', () => {
-            isSliderDragging = false;
-        });
-
-        // Stop button
-        stopButton.addEventListener('click', stopSound);
-
-        // Sound ended
-        audioPlayer.addEventListener('ended', () => {
-            console.log('>>> Audio ended');
-            if (currentPlayingButton) {
-                currentPlayingButton.classList.remove('playing');
-            }
-            currentPlayingButton = null;
-            trackNameDisplay.textContent = 'No sound playing';
-            timeSlider.value = 0;
-            updateSliderBackground();
-            timeDisplay.textContent = '0:00 / 0:00';
-            stopButton.disabled = true;
-        });
-        
-        console.log('✓ Event listeners attached');
-    } catch (error) {
-        console.error('Error attaching event listeners:', error);
+    if (currentButton) {
+        currentButton.classList.remove('playing');
     }
+    
+    currentButton = null;
+    trackNameElement.textContent = 'No sound playing';
+    timeSliderElement.value = 0;
+    updateSliderGradient();
+    timeDisplayElement.textContent = '0:00 / 0:00';
+    stopButtonElement.disabled = true;
 }
 
-// ============================================
-// UPDATE TIME DISPLAY
-// ============================================
+// Format seconds to mm:ss
+function formatTime(seconds) {
+    if (!isFinite(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Update time display
 function updateTimeDisplay() {
     const current = formatTime(audioPlayer.currentTime);
     const duration = formatTime(audioPlayer.duration);
-    timeDisplay.textContent = `${current} / ${duration}`;
+    timeDisplayElement.textContent = `${current} / ${duration}`;
 }
 
-// ============================================
-// FORMAT TIME
-// ============================================
-function formatTime(seconds) {
-    if (isNaN(seconds)) return '0:00';
-    
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+// Update slider gradient
+function updateSliderGradient() {
+    const value = (timeSliderElement.value - timeSliderElement.min) / (timeSliderElement.max - timeSliderElement.min) * 100;
+    timeSliderElement.style.setProperty('--value', value + '%');
 }
 
-// ============================================
-// UPDATE SLIDER BACKGROUND
-// ============================================
-function updateSliderBackground() {
-    if (timeSlider) {
-        const value = (timeSlider.value - timeSlider.min) / (timeSlider.max - timeSlider.min) * 100;
-        timeSlider.style.setProperty('--value', value + '%');
-    }
-}
-
-// ============================================
-// START APPLICATION
-// ============================================
-console.log('Script loaded - waiting for DOM...');
-
-if (document.readyState === 'loading') {
-    console.log('Document is loading - adding DOMContentLoaded listener');
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded event triggered');
-        initializeApp();
-    });
-} else {
-    console.log('Document already loaded - initializing immediately');
-    setTimeout(() => {
-        initializeApp();
-    }, 100);
-}
-
-// Also add a window load event as backup
-window.addEventListener('load', () => {
-    console.log('Window load event triggered');
-    if (soundboard && soundboard.children.length === 0) {
-        console.log('Soundboard is empty, reinitializing...');
-        initializeApp();
+// Audio time update listener
+audioPlayer.addEventListener('timeupdate', () => {
+    if (!isDragging) {
+        timeSliderElement.value = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
+        updateSliderGradient();
+        updateTimeDisplay();
     }
 });
+
+// Slider input listener
+timeSliderElement.addEventListener('input', () => {
+    if (audioPlayer.duration) {
+        audioPlayer.currentTime = (timeSliderElement.value / 100) * audioPlayer.duration;
+        updateSliderGradient();
+        updateTimeDisplay();
+    }
+});
+
+// Slider drag listeners
+timeSliderElement.addEventListener('mousedown', () => { isDragging = true; });
+timeSliderElement.addEventListener('mouseup', () => { isDragging = false; });
+timeSliderElement.addEventListener('touchstart', () => { isDragging = true; });
+timeSliderElement.addEventListener('touchend', () => { isDragging = false; });
+
+// Stop button listener
+stopButtonElement.addEventListener('click', stopAudio);
+
+// Audio ended listener
+audioPlayer.addEventListener('ended', () => {
+    if (currentButton) {
+        currentButton.classList.remove('playing');
+    }
+    currentButton = null;
+    trackNameElement.textContent = 'No sound playing';
+    timeSliderElement.value = 0;
+    updateSliderGradient();
+    timeDisplayElement.textContent = '0:00 / 0:00';
+    stopButtonElement.disabled = true;
+});
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderButtons);
+} else {
+    renderButtons();
+}

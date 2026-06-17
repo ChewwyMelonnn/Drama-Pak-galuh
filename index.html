@@ -20,11 +20,17 @@
         <div class="player">
             <div class="player-info">
                 <div class="track-name">No sound playing</div>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress"></div>
-                    </div>
+                
+                <div class="slider-container">
+                    <input type="range" id="timeSlider" class="time-slider" min="0" max="100" value="0">
                     <span class="time">0:00 / 0:00</span>
+                </div>
+                
+                <div class="player-controls">
+                    <button id="stopButton" class="control-button stop-button" disabled>
+                        <span class="button-icon">⏹</span>
+                        <span class="button-text">Stop</span>
+                    </button>
                 </div>
             </div>
         </div>

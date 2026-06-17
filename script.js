@@ -17,11 +17,12 @@ const SOUNDS = [
 const audioPlayer = document.getElementById('audioPlayer');
 const soundboard = document.querySelector('.soundboard');
 const trackNameDisplay = document.querySelector('.track-name');
-const progressBar = document.querySelector('.progress-bar');
-const progress = document.querySelector('.progress');
+const timeSlider = document.getElementById('timeSlider');
 const timeDisplay = document.querySelector('.time');
+const stopButton = document.getElementById('stopButton');
 
 let currentPlayingButton = null;
+let isSliderDragging = false;
 
 // ============================================
 // INITIALIZE SOUNDBOARD
@@ -45,13 +46,7 @@ function initializeSoundboard() {
 function playSound(sound, button) {
     // Jika sound yang sama sedang diputar, hentikan
     if (audioPlayer.src === sound.file && !audioPlayer.paused) {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-        if (currentPlayingButton) {
-            currentPlayingButton.classList.remove('playing');
-        }
-        currentPlayingButton = null;
-        trackNameDisplay.textContent = 'No sound playing';
+        stopSound();
         return;
     }
 
@@ -72,15 +67,34 @@ function playSound(sound, button) {
     currentPlayingButton = button;
     button.classList.add('playing');
     trackNameDisplay.textContent = sound.name;
+    stopButton.disabled = false;
+}
+
+// ============================================
+// STOP SOUND
+// ============================================
+function stopSound() {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+    if (currentPlayingButton) {
+        currentPlayingButton.classList.remove('playing');
+    }
+    currentPlayingButton = null;
+    trackNameDisplay.textContent = 'No sound playing';
+    timeSlider.value = 0;
+    updateSliderBackground();
+    timeDisplay.textContent = '0:00 / 0:00';
+    stopButton.disabled = true;
 }
 
 // ============================================
 // UPDATE PROGRESS BAR
 // ============================================
 audioPlayer.addEventListener('timeupdate', () => {
-    if (audioPlayer.duration) {
+    if (audioPlayer.duration && !isSliderDragging) {
         const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-        progress.style.width = percent + '%';
+        timeSlider.value = percent;
+        updateSliderBackground();
         updateTimeDisplay();
     }
 });
@@ -106,16 +120,45 @@ function formatTime(seconds) {
 }
 
 // ============================================
-// PROGRESS BAR CLICK
+// SLIDER INTERACTION
 // ============================================
-progressBar.addEventListener('click', (e) => {
+timeSlider.addEventListener('input', (e) => {
     if (audioPlayer.duration) {
-        const rect = progressBar.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percent = x / rect.width;
-        audioPlayer.currentTime = percent * audioPlayer.duration;
+        const percent = parseFloat(e.target.value);
+        audioPlayer.currentTime = (percent / 100) * audioPlayer.duration;
+        updateSliderBackground();
+        updateTimeDisplay();
     }
 });
+
+timeSlider.addEventListener('mousedown', () => {
+    isSliderDragging = true;
+});
+
+timeSlider.addEventListener('mouseup', () => {
+    isSliderDragging = false;
+});
+
+timeSlider.addEventListener('touchstart', () => {
+    isSliderDragging = true;
+});
+
+timeSlider.addEventListener('touchend', () => {
+    isSliderDragging = false;
+});
+
+// ============================================
+// UPDATE SLIDER BACKGROUND
+// ============================================
+function updateSliderBackground() {
+    const value = (timeSlider.value - timeSlider.min) / (timeSlider.max - timeSlider.min) * 100;
+    timeSlider.style.setProperty('--value', value + '%');
+}
+
+// ============================================
+// STOP BUTTON
+// ============================================
+stopButton.addEventListener('click', stopSound);
 
 // ============================================
 // SOUND ENDED
@@ -126,8 +169,10 @@ audioPlayer.addEventListener('ended', () => {
     }
     currentPlayingButton = null;
     trackNameDisplay.textContent = 'No sound playing';
-    progress.style.width = '0%';
+    timeSlider.value = 0;
+    updateSliderBackground();
     timeDisplay.textContent = '0:00 / 0:00';
+    stopButton.disabled = true;
 });
 
 // ============================================
@@ -135,4 +180,5 @@ audioPlayer.addEventListener('ended', () => {
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     initializeSoundboard();
+    updateSliderBackground();
 });

@@ -4,10 +4,10 @@
 // Tambahkan sound yang ingin Anda gunakan di sini
 // Format: { name: 'Nama Sound', file: 'path-ke-file-di-folder-sounds' }
 const SOUNDS = [
-    { name: 'Sound 1', file: 'sounds/sound1.mp3' },
-    { name: 'Sound 2', file: 'sounds/sound2.mp3' },
-    { name: 'Sound 3', file: 'sounds/sound3.mp3' },
-    { name: 'Sound 4', file: 'sounds/sound4.mp3' },
+    { name: 'kiichan', file: 'sounds/Kiichan Babalik Sa yo cover.mp3' },
+    { name: 'tiny little adiantum', file: 'sounds/Tiny Little Adiantum.mp3' },
+    { name: 'broken hearth', file: 'sounds/Rixton Me and My Broken Heart Official Video.mp3' },
+    { name: 'boone', file: 'sounds/Benson Boone In the Stars Official Lyric Video.mp3' },
     { name: 'Sound 5', file: 'sounds/sound5.mp3' },
     { name: 'Sound 6', file: 'sounds/sound6.mp3' },
     { name: 'Sound 7', file: 'sounds/sound7.mp3' },

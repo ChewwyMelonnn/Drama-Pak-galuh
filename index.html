@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Soundboard</h1>
+            <p class="subtitle">Click to play sounds</p>
+        </header>
+
+        <div class="soundboard">
+            <!-- Soundboard buttons will be generated here by JavaScript -->
+        </div>
+
+        <div class="player">
+            <div class="player-info">
+                <div class="track-name">No sound playing</div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <span class="time">0:00 / 0:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio element untuk playing sound -->
+    <audio id="audioPlayer"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>

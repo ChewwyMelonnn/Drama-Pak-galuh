@@ -1,13 +1,12 @@
 // SOUNDBOARD CONFIGURATION
 const SOUNDS = [
-    { name: 'kiichan', file: 'sounds/Kiichan Babalik Sa yo cover.mp3' },
-    { name: 'tiny little adiantum', file: 'sounds/Tiny Little Adiantum.mp3' },
-    { name: 'broken hearth', file: 'sounds/Rixton Me and My Broken Heart Official Video.mp3' },
-    { name: 'boone', file: 'sounds/Benson Boone In the Stars Official Lyric Video.mp3' },
-    { name: 'Sound 5', file: 'sounds/sound5.mp3' },
-    { name: 'Sound 6', file: 'sounds/sound6.mp3' },
-    { name: 'Sound 7', file: 'sounds/sound7.mp3' },
-    { name: 'Sound 8', file: 'sounds/sound8.mp3' },
+    { name: 'Opening', file: 'sounds/drama opening.mp3' },
+    { name: 'scene 3', file: 'sounds/scene 3.mp3' },
+    { name: 'scene 4', file: 'sounds/scene 4.mp3' },
+    { name: 'scene 5', file: 'sounds/scene 5.mp3' },
+    { name: 'scene 7', file: 'sounds/scene 7.mp3' },
+    { name: 'the letter', file: 'sounds/sounds/AUD-20260715-WA0022.aac' },
+    { name: 'Ending', file: 'sounds/drama ending.mp3' },
 ];
 
 // DOM Elements

@@ -5,7 +5,7 @@ const SOUNDS = [
     { name: 'scene 4', file: 'sounds/scene 4.mp3' },
     { name: 'scene 5', file: 'sounds/scene 5.mp3' },
     { name: 'scene 7', file: 'sounds/scene 7.mp3' },
-    { name: 'the letter', file: 'sounds/sounds/letter.mp3' },
+    { name: 'the letter', file: 'sounds/letter.mp3' },
     { name: 'Ending', file: 'sounds/drama ending.mp3' },
 ];
 

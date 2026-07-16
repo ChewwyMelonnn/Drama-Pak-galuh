@@ -9,6 +9,7 @@ const SOUNDS = [
     { name: 'Ending', file: 'sounds/drama ending.mp3' },
 ];
 
+
 // DOM Elements
 const audioPlayer = document.getElementById('audioPlayer');
 const soundboardContainer = document.querySelector('.soundboard');
